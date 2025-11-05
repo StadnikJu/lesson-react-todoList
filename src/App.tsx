@@ -1,43 +1,76 @@
 import { useState } from 'react'
 import './App.css'
 import {TodolistItem} from './TodolistItem'
-import { FilterValuesType, Task } from './Type';
+import { FilterValuesType, Task, TaskStateType, TodoListType } from './Type';
 import { v1 } from 'uuid';
-
-// CRUD - CREATE READ UPDATE DELETE 
 
 
 export const App = () => {
   // BLL (model)
+  // new todolidt
+  const todolistId_1 = v1();
+  const todolistId_2 = v1();
 
-  const todolist: string = "What to learn";
+  const [todolist, setTodolist] = useState<TodoListType[]>([
+    {id: todolistId_1, title: "What to learn", filter: 'all'},
+    {id: todolistId_2, title: "What to buy", filter: 'all',},
+  ]);
 
-  const [tasks, setTasks] = useState<Task[]>(
-    [
-      { id: v1(), title: 'HTML&CSS', isDone: true },
-      { id: v1(), title: 'JS', isDone: true },
+  const [tasks, setTasks] = useState<TaskStateType>({
+    [todolistId_1]: [
+      { id: v1(), title: 'HTML&CSS', isDone: false },
+      { id: v1(), title: 'JS', isDone: false },
       { id: v1(), title: 'ReactJS', isDone: false },
       { id: v1(), title: 'Redux', isDone: false },
       { id: v1(), title: 'Typescript', isDone: false },
       { id: v1(), title: 'RTK query', isDone: false },
-    ]
-  );
+    ],
+    [todolistId_2]: [
+      { id: v1(), title: 'Milk', isDone: false },
+      { id: v1(), title: 'Beer', isDone: false },
+      { id: v1(), title: 'Snack', isDone: false },
+      { id: v1(), title: 'Bread', isDone: false },
+      { id: v1(), title: 'Butter', isDone: false },
+      { id: v1(), title: 'Tea', isDone: false },
+    ],
+  });
 
-  const deleteTask = (taskId: Task['id']) => {
-    // 1. Create next state
-    const nextState: Task[] = tasks.filter(t => t.id !== taskId)
-    // 2. Update data
-    setTasks(nextState) // setTasks(tasks.filter(t => t.id !== taskId)
+  // delete task    // new todolidt
+  const deleteTask = (taskId: Task['id'], id: TodoListType['id']) => {
+    const nextState: TaskStateType = {...tasks, [id]: tasks[id].filter(t => t.id !== taskId)};
+    setTasks(nextState);
   }
 
-  // GUI (view)
-  const [filter, setfilter] = useState<FilterValuesType>("all");
-  const changeTodoListFilter = (filter: FilterValuesType) => {
-    setfilter(filter)
+  // create input   // new todolidt
+  const  createTask = (title: string, id: TodoListType['id']) => {
+    const newTask: Task = {id: v1(), title: title, isDone: false};
+    const nextState: TaskStateType = {...tasks, [id]: [...tasks[id], newTask]};
+    setTasks(nextState);
   }
 
-  const getFilteredTasks = (tasks: Task[], filter: FilterValuesType):Task[] => {
-    // либо так:
+  // changed status  // new todolidt
+  const changeTaskStatus = (taskId: Task['id'], newIsDoneValue: Task['isDone'], id: TodoListType['id']) => {
+    const nextState: TaskStateType = {...tasks, [id]: tasks[id].map(t => t.id === taskId ? {...t, isDone: newIsDoneValue} : t)};
+    setTasks(nextState);
+  }
+
+  // GUI (view)  // new todolidt
+ const changeTodoListFilter = (filter: FilterValuesType, id: TodoListType['id']) => {
+    const nextState: TodoListType[] = todolist.map(t => t.id === id ? {...t, filter: filter}: t);
+    setTodolist(nextState);
+  }
+
+  // delete todolist  // new todolidt 
+  const deletTodolis = (id: TodoListType['id']) => {
+    const nextState: TodoListType[] = todolist.filter(tl => tl.id !== id);
+    setTodolist(nextState);
+    // delete Tasks
+    const nextTaskState: TaskStateType = {...tasks};
+    delete nextTaskState[id];
+    setTasks(nextTaskState);
+  }
+
+  const getFilteredTasks = (tasks: Task[], filter: FilterValuesType): Task[] => {
     return filter === "active"
       ? tasks.filter(t => !t.isDone)
       : filter === "completed"
@@ -45,36 +78,29 @@ export const App = () => {
       : tasks
   }
 
-
-  // create input 
-  const  createTask = (title: string) => {
-    //1. Create next state(immutable);
-    // const newTask: Task = {
-    //   id: v1(), 
-    //   title: title,
-    //   isDone: false,
-    // }
-
-    // const nextState: Task[] = [...tasks, newTask];
-
-    //2. Update data
-    //setTasks(nextState);
-
-    setTasks([{id: v1(), title: title, isDone: false}, ...tasks])
-  }
+  // new todolidt 
+  const tododListComponents = todolist.map(tl => {
+    return (
+      <TodolistItem 
+          key={tl.id}
+          id={tl.id}
+          filterS={tl.filter}
+          title={tl.title} 
+          tasks={getFilteredTasks(tasks[tl.id], tl.filter)} // ?
+          deleteTask={deleteTask} 
+          deletTodolis={deletTodolis}
+          changeTodoListFilter={changeTodoListFilter}
+          createTask={createTask}
+          changeTaskStatus={changeTaskStatus}
+        />
+    )
+  })
 
   return (
       <div className="app">
-        <TodolistItem 
-          title="What to learn" 
-          tasks={getFilteredTasks(tasks, filter)}
-          deleteTask={deleteTask} 
-          changeTodoListFilter={changeTodoListFilter}
-          createTask={createTask}
-        />
+        {tododListComponents}
       </div>
   )
 }
 
 
-// crypto.randomUUID()
