@@ -1,6 +1,8 @@
+import { Button, TextField } from "@mui/material";
 import { useState } from "react";
-import { Button } from "./Button"
+//import { Button } from "./Button"
 import {  KeyboardEvent } from 'react';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 
 export type ItemFormType = {
@@ -31,23 +33,28 @@ export const CreateItemForm = ({createItem, maxItemTitleLength}: ItemFormType) =
   }
 
 
-    return (
-        <div>
-          <input 
-            value={itemInput}
-            placeholder='Max 10 words'
-            onChange={(e) => {setItemInput(e.currentTarget.value); setError(false)}}
-            onKeyDown={keyDownCreateHandlerItem}
-            className={error ? 'inputError ' : ''}
-          />
-          <Button 
-              title={'+'}  
-              onClickHandler={createTaskHandler}
-              disabled={!itemInput.trim().length || itemInput.length >= maxItemTitleLength}
-          />
-          {itemInput.length === 0 && <div>Please, enter title</div>}
-          {itemInput.length >= maxItemTitleLength && <div style={{color: "red"}}>Max {maxItemTitleLength} words</div>}
-          {itemInput.length !== 0  && itemInput.length <= maxItemTitleLength && <p>task none {itemInput.length}</p>}
-        </div>
-    )
+  return (
+    <div>
+      <TextField 
+        variant="outlined"
+        size="small"
+        error={error}
+        value={itemInput}
+        placeholder='Max 10 words'
+        onChange={(e) => {setItemInput(e.currentTarget.value); setError(false)}}
+        onKeyDown={keyDownCreateHandlerItem}
+      />
+      <Button 
+        size='small' 
+        color='primary' 
+        onClick={createTaskHandler}
+        disabled={!itemInput.trim().length || itemInput.length >= maxItemTitleLength}
+      >
+        <AddCircleIcon />
+      </Button>
+      {itemInput.length === 0 && <div>Please, enter title</div>}
+      {itemInput.length >= maxItemTitleLength && <div style={{color: "red"}}>Max {maxItemTitleLength} words</div>}
+      {itemInput.length !== 0  && itemInput.length <= maxItemTitleLength && <p>task none {itemInput.length}</p>}
+    </div>
+  )
 }

@@ -1,13 +1,23 @@
 .app {
-  padding: 30px;
   display: flex;
+  flex-direction: column;
+  width: 100vw;
 }
 
-.app > div {
+.container {
+  display: flex;
+  align-items: center;
+}
+ 
+.is-done {
+  opacity: 0.5;
+}
+
+/* .app > div {
   margin-right: 50px;
-}
+} */
 
-.task {
+/* .task {
   font-weight: bold;
 }
 
@@ -25,4 +35,4 @@
 .inputError {
   border: 2px solid red;
   outline: none;
-}
+} */
